@@ -1,0 +1,102 @@
+<div class="row" style="margin:0px; padding-top:30px;">
+    <div class="col-xs-2 col-xs-offset-5">
+        <button class="btn btn-primary" ng-click="showCreateUserModal()"><span class="glyphicon glyphicon-plus"></span> Create new uploader</button>
+    </div>
+    <div class="col-xs-offset-2 col-xs-1">
+        <button class="btn btn-primary" ng-click="refreshTabularData()"><span class="glyphicon glyphicon-refresh"></span></button>
+    </div>
+</div>
+
+<!-- New User Modal starts-->
+<div class="modal fade" id="createNewUploaderModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeCreateUserModal()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Create New Uploader</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" name="newUploaderForm" ng-submit="createNewUploader()" novalidate>
+                    <div class="form-group" ng-class="{ 'has-error' : newUploaderForm.newUploaderName.$error.required && !newUploaderForm.newUploaderName.$pristine }">
+                        <label for="newName" class="col-xs-2 control-label">Name</label>
+                        <div class="col-xs-10">
+                            <input type="text" class="form-control" id="newName" name="newUploaderName" placeholder="Name" ng-model="newUploader.name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newRole" class="col-xs-2 control-label">Role</label>
+                        <div class="col-xs-10">
+                            <input type="text" class="form-control" id="newRole" name="newUploaderRole" placeholder="Uploader" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="{ 'has-error' : newUploaderForm.newUploaderEmail.$error.required && !newUploaderForm.newUploaderEmail.$pristine }">
+                        <label for="newEmail" class="col-xs-2 control-label">Email</label>
+                        <div class="col-xs-10">
+                            <input type="text" class="form-control" id="newEmail" name="newUploaderEmail" placeholder="Email" ng-model="newUploader.email" required>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="{ 'has-error' : newUploaderForm.newUploaderPassword.$error.required && !newUploaderForm.newUploaderPassword.$pristine }">
+                        <label for="newPassword" class="col-xs-2 control-label">Password</label>
+                        <div class="col-xs-10">
+                            <input type="text" class="form-control" id="newPassword" name="newUploaderPassword" placeholder="Password" ng-model="newUploader.password" required>
+                        </div>
+                    </div>
+                    <div align="center" style="color:red; padding:12px;" ng-show="!userCreationTry">Email id already exists.</div>
+                    <div class="form-group">
+                        <div class="col-xs-offset-5 col-xs-2">
+                            <button class="btn btn-primary" ng-disabled="newUploaderForm.$invalid">Create</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- New User Modal ends-->
+
+<div class="row" style="padding-top:42px; margin:0px;" ng-show="uploadersRetrieved">
+    <div class="col-xs-10 col-xs-offset-1">
+        <table class="table">
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Joined on</th>
+                <th>Remove?</th>
+            </tr>
+            <tr ng-repeat="uploader in uploaders">
+                <td>{{uploader.name}}</td>
+                <td>{{uploader.role}}</td>
+                <td>{{uploader.email}}</td>
+                <td>{{uploader.createdAt | date:'longDate'}}</td>
+                <td><button class="btn btn-link" ng-click="showDeleteUploaderModal($index)" ng-disabled=" uploader.role == 'editor' "><span class="glyphicon glyphicon-remove"></span></button></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- Delete User Modal starts-->
+<div class="modal fade" id="deleteUploaderModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeDeleteUserModal()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title danger">Warning!!!</h4>
+            </div>
+            <div class="modal-body">
+                {{"Are you sure you want to remove " + uploaders[selectedUploaderForDeletion].name + " (" + uploaders[selectedUploaderForDeletion].role + ") ?"}}
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="closeDeleteUserModal()">No</button>
+                <button class="btn btn-danger" ng-click="deleteUploader()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Delete User Modal ends-->
+
+<div class="row" style="padding-top:150px;" ng-show="showGif">
+    <img src="./resources/loading.gif" class="col-xs-2 col-xs-offset-5" style="height:50px; width:100px;" align="center">
+</div>

@@ -1,0 +1,142 @@
+<div class="row" style="padding-top:50px; margin: 0px;">
+    <div class="row" style="height: 50px; margin: 0px;">
+        <div class="col-xs-4 col-xs-offset-4" style="padding: 0px;">
+            <div class="btn-group btn-group-justified toggle-buttons">
+                <label class="btn btn-primary" ng-class="{'active' : visibleTab == 'uploaded' }">
+                    <input type="radio" name="options-requests" value="uploaded" autocomplete="off" ng-model="visibleTab" ng-click="tabChanged()"> Uploaded
+                </label>
+                <label class="btn btn-primary" ng-class="{'active' : visibleTab == 'approved' }">
+                    <input type="radio" name="options-requests" value="approved" autocomplete="off" ng-model="visibleTab" ng-click="tabChanged()"> Approved
+                </label>
+                <label class="btn btn-primary" ng-class="{'active' : visibleTab == 'published' }">
+                    <input type="radio" name="options-requests" value="published" autocomplete="off" ng-model="visibleTab" ng-click="tabChanged()"> Published
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin: 0px;">
+        <div class="col-xs-10 col-xs-offset-1" ng-show=" visibleTab == 'uploaded' ">
+            <div class="col-xs-1 col-xs-offset-10" style="margin-bottom: 12px;">
+                <button class="btn btn-primary" ng-click="refresh('uploaded')" ng-disabled="disableRefresh.uploaded"><span class="glyphicon glyphicon-refresh"></span></button>
+            </div>
+            <table class="table col-xs-12">
+                <tr>
+                    <th>Title</th>
+                    <th>Publish Date</th>
+                    <th>Uploader</th>
+                    <th>Uploaded at</th>
+                    <th>Review and Approve?</th>
+                    <th>Delete ?</th>
+                </tr>
+                <tr ng-repeat="item in news.uploaded track by $index">
+                    <td>{{item.content[viewingLang].heading}}</td>
+                    <td>{{item.publishDate | date:'fullDate'}}</td>
+                    <td>{{item.uploadedBy}}</td>
+                    <td>{{item.createdAt | date:'mediumDate'}}</td>
+                    <td><button class="btn btn-link" ng-click="openEditWindow('uploaded', $index)"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal($index, 'uploaded')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                </tr>
+            </table>
+            <div style="height:24px; width: 100%">
+                <button class="btn center-block" style="width: 30%" ng-click="showMore('uploaded')" ng-show="newsStatus.uploaded == 1 && news.uploaded.length>0">Show More</button>
+                <p style="text-align: center; color: green;" ng-show="newsStatus.uploaded == 2 && news.uploaded.length>0">Loading ...</p>
+            </div>
+        </div>
+        <div class="col-xs-12" ng-show=" visibleTab == 'approved' ">
+            <div class="col-xs-1 col-xs-offset-10" style="margin-bottom: 12px;">
+                <button class="btn btn-primary" ng-click="refresh('approved')" ng-disabled="disableRefresh.approved"><span class="glyphicon glyphicon-refresh"></span></button>
+            </div>
+            <table class="table col-xs-12">
+                <tr>
+                    <th>Title</th>
+                    <th>Publish Date</th>
+                    <th>Edit info</th>
+                    <th>Upload info</th>
+                    <th>Edit ?</th>
+                    <th>Publish ?</th>
+                    <th>Delete ?</th>
+                </tr>
+                <tr ng-repeat="item in news.approved track by $index">
+                    <td>{{item.content[viewingLang].heading}}</td>
+                    <td>{{item.publishDate | date:'fullDate'}}</td>
+                    <td>{{item.editedBy}}, {{item.updatedAt | date:'mediumDate'}}</td>
+                    <td>{{item.uploadedBy}}, {{item.createdAt | date:'mediumDate'}}</td>
+                    <td><button class="btn btn-link" ng-click="openEditWindow('approved', $index)"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-primary" ng-click="confirmPublishNews($index)"><span class="glyphicon glyphicon-film"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal($index, 'approved')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                </tr>
+            </table>
+            <div style="height:24px; width: 100%">
+                <button class="btn center-block" style="width: 30%" ng-click="showMore('approved')" ng-show="newsStatus.approved == 1 && news.approved.length>0">Show More</button>
+                <p style="text-align: center; color: green;" ng-show="newsStatus.approved == 2 && news.approved.length>0">Loading ...</p>
+            </div>
+        </div>
+        <div class="col-xs-12" ng-show=" visibleTab == 'published' ">
+            <div class="col-xs-1 col-xs-offset-10" style="margin-bottom: 12px;">
+                <button class="btn btn-primary" ng-click="refresh('published')" ng-disabled="disableRefresh.published"><span class="glyphicon glyphicon-refresh"></span></button>
+            </div>
+            <table class="table col-xs-12">
+                <tr>
+                    <th>Title</th>
+                    <th>Publish Date</th>
+                    <th>Edit info</th>
+                    <th>Upload info</th>
+                    <th>Edit?</th>
+                    <th>Delete ?</th>
+                </tr>
+                <tr ng-repeat="item in news.published track by $index">
+                    <td>{{item.content[viewingLang].heading}}</td>
+                    <td>{{item.publishDate | date:'fullDate'}}</td>
+                    <td>{{item.editedBy}}, {{item.updatedAt | date:'mediumDate'}}</td>
+                    <td>{{item.uploadedBy}}, {{item.createdAt | date:'mediumDate'}}</td>
+                    <td><button class="btn btn-link" ng-click="openEditWindow('published', $index)"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal($index, 'published')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                </tr>
+            </table>
+            <div style="height:24px; width: 100%">
+                <button class="btn center-block" style="width: 30%" ng-click="showMore('published')" ng-show="newsStatus.published == 1 && news.published.length>0">Show More</button>
+                <p style="text-align: center; color: green;" ng-show="newsStatus.published == 2 && news.published.length>0">Loading ...</p>
+            </div>
+        </div>
+    </div>
+    <div style="height: 18px;"></div>
+</div>
+
+<!-- Confirm Publish Modal starts-->
+<div class="modal fade" id="publishNewsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title danger">Sure!!!</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to publish this news ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger" ng-click="publishNews()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Confirm Publish Modal ends-->
+<!-- Confirm Delete Modal starts-->
+<div class="modal fade" id="deleteNewsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title danger">Sure!!!</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the news {{news[toBeDeleted.type][toBeDeleted.index].content[viewingLang].heading}} ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger" ng-click="deleteNews()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Confirm Delete Modal ends-->

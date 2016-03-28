@@ -1,0 +1,20 @@
+.header {
+    background-color: black;
+    height: 80px;
+    color: whitesmoke;
+}
+
+.html, .body, .div {
+    margin: 0px;
+    padding: 0px;
+}
+
+.toggle-buttons input[type="radio"] {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+.hover-effect:hover {
+    background-color: #e0e0e0;
+}

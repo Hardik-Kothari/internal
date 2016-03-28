@@ -1,0 +1,112 @@
+<div class="row" style="margin:0px; padding-top:30px;">
+    <div class="col-xs-2 col-xs-offset-5">
+        <button class="btn btn-primary" ng-click="showCreateUserModal()"><span class="glyphicon glyphicon-plus"></span> Create new user</button>
+    </div>
+    <div class="col-xs-offset-2 col-xs-1">
+        <button class="btn btn-primary" ng-click="refreshTabularData()"><span class="glyphicon glyphicon-refresh"></span></button>
+    </div>
+</div>
+
+<!-- New User Modal starts-->
+<div class="modal fade" id="createNewUserModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeCreateUserModal()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Create New User</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" name="newUserForm" ng-submit="createNewUser()" novalidate>
+                    <div class="form-group" ng-class="{ 'has-error' : newUserForm.newUserName.$error.required && !newUserForm.newUserName.$pristine }">
+                        <label for="inputName" class="col-xs-2 control-label">Name</label>
+                        <div class="col-xs-10">
+                            <input type="text" class="form-control" id="inputName" name="newUserName" placeholder="Name" ng-model="newUser.name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-xs-2 control-label">Role</label>
+                        <div class="col-xs-10">
+                            <label class="radio-inline">
+                                <input type="radio" name="newUserRoleOptions" id="inlineRadio1" value="admin" ng-model="newUser.role"> Admin
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="newUserRoleOptions" id="inlineRadio2" value="editor" ng-model="newUser.role"> Editor
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="newUserRoleOptions" id="inlineRadio3" value="uploader" ng-model="newUser.role"> Uploader
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error' : newUserForm.newUserEmail.$error.required && !newUserForm.newUserEmail.$pristine}">
+                        <label for="inputEmail" class="col-xs-2 control-label">Email</label>
+                        <div class="col-xs-10">
+                            <input type="email" class="form-control" id="inputEmail" name="newUserEmail" placeholder="Email" ng-model="newUser.email" required>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="{ 'has-error' : newUserForm.newUserPassword.$error.required && !newUserForm.newUserPassword.$pristine }">
+                        <label for="inputPassword" class="col-xs-2 control-label">Password</label>
+                        <div class="col-xs-10">
+                            <input type="text" class="form-control" id="inputPassword" name="newUserPassword" placeholder="Password" ng-model="newUser.password" required>
+                        </div>
+                    </div>
+                    <div align="center" style="color:red; padding:12px;" ng-show="!userCreationTry">Email id already exists.</div>
+                    <div class="form-group">
+                        <div class="col-xs-offset-5 col-xs-2">
+                            <button class="btn btn-primary" ng-disabled="newUserForm.$invalid">Create</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- New User Modal ends-->
+
+<div class="row" style="padding-top:42px; margin:0px;" ng-show="usersRetrieved">
+    <div class="col-xs-10 col-xs-offset-1">
+        <table class="table">
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Joined on</th>
+                <th>Remove?</th>
+            </tr>
+            <tr ng-repeat="user in users">
+                <td>{{user.name}}</td>
+                <td>{{user.role}}</td>
+                <td>{{user.email}}</td>
+                <td>{{user.createdAt | date:'longDate'}}</td>
+                <td><button class="btn btn-link" ng-click="showDeleteUserModal($index)" ng-disabled=" user.role == 'admin' "><span class="glyphicon glyphicon-remove"></span></button></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- Delete User Modal starts-->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeDeleteUserModal()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title danger">Warning!!!</h4>
+            </div>
+            <div class="modal-body">
+                {{"Are you sure you want to remove " + users[selectedUserForDeletion].name + " (" + users[selectedUserForDeletion].role + ") ?"}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-click="closeDeleteUserModal()">No</button>
+                <button type="button" class="btn btn-danger" ng-click="deleteUser()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Delete User Modal ends-->
+
+<!--
+<div class="row" style="padding-top:150px;" ng-show="showGif">
+    <img src="./resources/loading.gif" class="col-xs-2 col-xs-offset-5" style="height:50px; width:100px;" align="center">
+</div>
+-->

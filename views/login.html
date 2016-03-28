@@ -1,0 +1,24 @@
+<div class="row" style="height:200px; margin:0px; margin-top:100px;">
+    <div class="col-xs-4 col-xs-offset-4" style="background-color:#dddddd; padding-top:30px; border:1px solid #555555; border-radius:5px;">
+        <form class="form-horizontal" name="loginForm" ng-submit="signIn()" novalidate>
+            <div class="form-group">
+                <div class="input-group col-xs-10 col-xs-offset-1" ng-class="{ 'has-error' : loginForm.email.$error.required && !loginForm.email.$pristine }">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></div>
+                    <input type="text" class="form-control" name="email" placeholder="Email" ng-model="login.email" required>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : loginForm.password.$error.required && !loginForm.password.$pristine }">
+                <div class="input-group col-xs-10 col-xs-offset-1">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></div>
+                    <input type="password" class="form-control" name="password" placeholder="Password" ng-model="login.password" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-5 col-xs-4">
+                    <button type="submit" class="btn btn-primary">Sign in</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div style="margin:0px; color:red;" align="center" ng-show="!successfulTry">INVALID CREDENTIALS. Try again.</div>

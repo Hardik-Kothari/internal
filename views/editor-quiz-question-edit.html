@@ -1,0 +1,86 @@
+<div class="row" style="margin:0px; padding:0px; padding-top:12px; height: 36px; line-height: 36px; color: #777777">
+    <div class="col-xs-2 col-xs-offset-1">
+        <b>Quiz Details</b>
+    </div>
+    <div class="col-xs-2">
+        Name : {{quiz.nickname}}
+    </div>
+    <div class="col-xs-2">
+        Type : {{quiz.type}}
+    </div>
+    <div class="col-xs-3">
+        Date : {{quiz.publishDate | date: "fullDate"}}
+    </div>
+</div>
+
+<div class="row" style="margin:0px; padding:0px; padding-top:36px;">
+    <div class="col-xs-4 col-xs-offset-4" style="padding: 0px;">
+        <div class="btn-group btn-group-justified toggle-buttons">
+            <label class="btn btn-warning" ng-class="{'active' : quesLang == 'english' }">
+                <input type="radio" name="options-question-lang" value="english" autocomplete="off" ng-model="quesLang"> English                         </label>
+            <label class="btn btn-warning" ng-class="{'active' : quesLang == 'hindi' }">
+                <input type="radio" name="options-question-lang" value="hindi" autocomplete="off" ng-model="quesLang"> Hindi
+            </label>
+        </div>
+    </div>
+</div>
+
+
+<div ng-repeat="lang in ['english', 'hindi']">
+    <div ng-show=" lang == quesLang ">
+        <div class="row" style="margin:0px; padding:0px; padding-top:24px;">
+            <label class="col-xs-1 control-label">Statement</label>
+            <div class="col-xs-10">
+                <textarea class="form-control" rows="2" ng-model="question.statement[lang]"></textarea>
+            </div>
+        </div>
+        <div class="row" style="margin:0px; padding:0px; padding-top:18px;">
+            <label class="col-xs-1 control-label">Options</label>
+            <div class="col-xs-9">
+                <div class="row" style="margin:0px; padding:0px; padding-top:12px;" ng-repeat="option in question.options[lang] track by $index">
+                    <div class="col-xs-9">
+                        <textarea class="form-control" rows="1" ng-model="question.options[lang][$index]"></textarea>
+                    </div>
+                    <div class="col-xs-1 col-xs-offset-1">
+                        <input type="radio" name="current-answer-radio_{{lang}}" ng-value="$index+1" ng-model="question.correctAnswer[lang]">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-2">
+                <div style="height: 24px;"></div>
+                <div>
+                    <label class="control-label">Difficulty Level</label>
+                </div>
+                <div style="height: 24px;"></div>
+                <div>
+                    <select class="form-control" ng-model="question.level" ng-options="obj.value as obj.text for obj in difficultyIndices">
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin:0px; padding:0px; padding-top:18px;">
+            <label class="col-xs-1 control-label">Answer Description</label>
+            <div class="col-xs-10">
+                <textarea class="form-control" rows="2" ng-model="question.solution[lang]"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" style="margin:0px; padding:0px; padding-top:12px;" ng-show=" type == 'edit' ">
+    <div class="col-xs-offset-4 col-xs-2">
+        <button class="btn" ng-click="close()">Close</button>
+    </div>
+    <div class="col-xs-2">
+        <button class="btn btn-primary" ng-click="save()">Save changes</button>
+    </div>
+</div>
+<div class="row" style="margin:0px; padding:0px; padding-top:12px;" ng-show=" type == 'new' ">
+    <div class="col-xs-offset-4 col-xs-2">
+        <button class="btn" ng-click="close()">Cancel</button>
+    </div>
+    <div class="col-xs-2">
+        <button class="btn btn-primary" ng-click="create()">Create</button>
+    </div>
+</div>
+<div class="row" style="height: 24px;">
+</div>

@@ -1,0 +1,71 @@
+<div class="row" style="margin: 0px;">
+    <div class="col-xs-8 col-xs-offset-2">
+        <h3 align="center">Choose appropriate options below to proceed further</h3>
+        <div style="height: 50px;"></div>
+        <form class="form-horizontal" name="contentTypeForm" novalidate>
+            <div class="form-group">
+                <div class="col-xs-4 col-xs-offset-4">
+                    <label class="radio-inline">
+                        <input type="radio" name="main-category-radio" value="exam" ng-model="mainCategoryRadio"> Exam
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="main-category-radio" value="currentAffairs" ng-model="mainCategoryRadio"> Current Affairs
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" ng-show=" mainCategoryRadio == 'exam' ">
+                <div class="col-xs-10 col-xs-offset-1">
+                    <select ng-model="selects.examType" class="form-control">
+                        <option value="">--- Select exam ---</option>
+                        <option ng-repeat="option in options.exams" ng-value="option">{{option}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" ng-show=" mainCategoryRadio == 'exam' && selects.examType != '' ">
+                <div class="col-xs-10 col-xs-offset-1">
+                    <select ng-model="selects.prepType" class="form-control">
+                        <option value="">--- Select preparation type ---</option>
+                        <option ng-repeat="option in options.prepType" ng-value="option">{{option}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" ng-show=" mainCategoryRadio == 'exam' && selects.examType != '' && selects.prepType == 'Individual' ">
+                <div class="col-xs-10 col-xs-offset-1">
+                    <select ng-model="selects.subjectType" class="form-control">
+                        <option value="">--- Select subject ---</option>
+                        <option ng-repeat="option in options.subjects[selects.examType]" ng-value="option">{{option}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" ng-show=" mainCategoryRadio == 'exam' && selects.examType != '' && selects.prepType == 'Individual' && selects.subjectType != '' ">
+                <div class="col-xs-10 col-xs-offset-1">
+                    <select ng-model="selects.contentType" class="form-control">
+                        <option value="">--- Select type ---</option>
+                        <option ng-repeat="option in options.basicContentType" ng-value="option">{{option}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" ng-show=" mainCategoryRadio == 'exam' && selects.examType != '' && selects.prepType == 'Complete' ">
+                <div class="col-xs-10 col-xs-offset-1">
+                    <select ng-model="selects.completeTestType" class="form-control">
+                        <option value="">--- Select type ---</option>
+                        <option ng-repeat="option in options.completeTestType" ng-value="option">{{option}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" ng-show=" mainCategoryRadio == 'currentAffairs' ">
+                <div class="col-xs-10 col-xs-offset-1">
+                    <select ng-model="selects.currentAffairsType" class="form-control">
+                        <option value="">--- Select type ---</option>
+                        <option ng-repeat="option in options.CAContentType" ng-value="option">{{option}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" ng-show=" ( mainCategoryRadio == 'currentAffairs' && selects.currentAffairsType != '' ) || ( mainCategoryRadio == 'exam' && selects.examType != '' && selects.prepType == 'Complete' && selects.completeTestType != '') || ( mainCategoryRadio == 'exam' && selects.examType != '' && selects.prepType == 'Individual' && selects.contentType != '' ) " style="padding-top: 36px;">
+                <div class="col-xs-offset-4 col-xs-4">
+                    <button class="btn btn-primary btn-block" ng-click="go()">Go <span class="glyphicon glyphicon-arrow-right"></span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

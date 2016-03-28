@@ -1,0 +1,27 @@
+<div class="row" style="margin:0px; padding:0px; padding-top:100px;">
+    <div class="col-xs-3 col-xs-offset-2" style="height:200px;">
+        <button class="btn btn-primary" style="height:100%; width:100%" ng-click="viewUploaders()"><span style="display:block; align:center; font-size:18px;">View Uploaders</span></button>
+    </div>
+    <div class="col-xs-3 col-xs-offset-2" style="height:200px;">
+        <button class="btn btn-primary" style="height:100%; width:100%" data-toggle="modal" data-target="#chooseContentTypeModal"><span style="display:block; align:center; font-size:18px;">View/Approve Requests</span></button>
+    </div>
+</div>
+
+
+<div class="modal fade" id="chooseContentTypeModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title danger">Choose type of content</h4>
+            </div>
+            <div class="modal-body">
+                <div style="margin:0px 24px; padding:6px;" ng-repeat="contentType in contentTypes">
+                    <button class="btn btn-block" data-dismiss="modal" ng-click="viewRequests(contentType)">{{contentType}}</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
