@@ -23,18 +23,16 @@
                 <tr>
                     <th>Title</th>
                     <th>Publish Date</th>
-                    <th>Uploader</th>
-                    <th>Uploaded at</th>
-                    <th>Review and Approve?</th>
-                    <th>Delete ?</th>
+                    <th>Upload info</th>
+                    <th>Review?</th>
+                    <th>Delete?</th>
                 </tr>
-                <tr ng-repeat="item in news.uploaded track by $index">
+                <tr ng-repeat="item in news.uploaded | orderBy:'-publishDate' track by $index">
                     <td>{{item.content[viewingLang].heading}}</td>
                     <td>{{item.publishDate | date:'fullDate'}}</td>
-                    <td>{{item.uploadedBy}}</td>
-                    <td>{{item.createdAt | date:'mediumDate'}}</td>
-                    <td><button class="btn btn-link" ng-click="openEditWindow('uploaded', $index)"><span class="glyphicon glyphicon-edit"></span></button></td>
-                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal($index, 'uploaded')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                    <td>{{item.uploadedBy}}, {{item.createdAt | date:'mediumDate'}}</td>
+                    <td><button class="btn btn-link" ng-click="openEditWindow('uploaded', item)"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal(item, 'uploaded')"><span class="glyphicon glyphicon-remove"></span></button></td>
                 </tr>
             </table>
             <div style="height:24px; width: 100%">
@@ -52,18 +50,18 @@
                     <th>Publish Date</th>
                     <th>Edit info</th>
                     <th>Upload info</th>
-                    <th>Edit ?</th>
-                    <th>Publish ?</th>
-                    <th>Delete ?</th>
+                    <th>Edit?</th>
+                    <th>Publish?</th>
+                    <th>Delete?</th>
                 </tr>
-                <tr ng-repeat="item in news.approved track by $index">
+                <tr ng-repeat="item in news.approved | orderBy:'-publishDate' track by $index">
                     <td>{{item.content[viewingLang].heading}}</td>
                     <td>{{item.publishDate | date:'fullDate'}}</td>
                     <td>{{item.editedBy}}, {{item.updatedAt | date:'mediumDate'}}</td>
                     <td>{{item.uploadedBy}}, {{item.createdAt | date:'mediumDate'}}</td>
-                    <td><button class="btn btn-link" ng-click="openEditWindow('approved', $index)"><span class="glyphicon glyphicon-edit"></span></button></td>
-                    <td><button class="btn btn-primary" ng-click="confirmPublishNews($index)"><span class="glyphicon glyphicon-film"></span></button></td>
-                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal($index, 'approved')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="openEditWindow('approved', item)"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-primary" ng-click="confirmPublishNews(item)"><span class="glyphicon glyphicon-film"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal(item, 'approved')"><span class="glyphicon glyphicon-remove"></span></button></td>
                 </tr>
             </table>
             <div style="height:24px; width: 100%">
@@ -82,15 +80,15 @@
                     <th>Edit info</th>
                     <th>Upload info</th>
                     <th>Edit?</th>
-                    <th>Delete ?</th>
+                    <th>Delete?</th>
                 </tr>
-                <tr ng-repeat="item in news.published track by $index">
+                <tr ng-repeat="item in news.published | orderBy:'-publishDate' track by $index">
                     <td>{{item.content[viewingLang].heading}}</td>
                     <td>{{item.publishDate | date:'fullDate'}}</td>
                     <td>{{item.editedBy}}, {{item.updatedAt | date:'mediumDate'}}</td>
                     <td>{{item.uploadedBy}}, {{item.createdAt | date:'mediumDate'}}</td>
-                    <td><button class="btn btn-link" ng-click="openEditWindow('published', $index)"><span class="glyphicon glyphicon-edit"></span></button></td>
-                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal($index, 'published')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="openEditWindow('published', item)"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteNewsModal(item, 'published')"><span class="glyphicon glyphicon-remove"></span></button></td>
                 </tr>
             </table>
             <div style="height:24px; width: 100%">
@@ -130,7 +128,7 @@
                 <h4 class="modal-title danger">Sure!!!</h4>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete the news {{news[toBeDeleted.type][toBeDeleted.index].content[viewingLang].heading}} ?
+                Are you sure you want to delete the news {{toBeDeleted.item.content[viewingLang].heading}} ?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>

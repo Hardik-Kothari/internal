@@ -30,10 +30,11 @@
         <div style="position: fixed; top: 0px; left: 0px; height: 100%; width: 100%; background-color: black; opacity: 0.6; z-index:10000;" ng-show="loading"></div>
         <img style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: 50px; width: 50px; z-index:10001;" src="./resources/loading.gif" ng-show="loading">
         <div class="header row" style="margin:0px; padding:0px;">
-            <div class="col-xs-6" style="padding:19px 30px; font-size:30px;">
+            <div class="col-xs-4" style="padding:19px 30px; font-size:30px;">
                 INTERNAL
             </div>
-            <div class="col-xs-2 col-xs-offset-4" align="right" ng-show="loggedIn">
+            <div class="col-xs-3">{{(domainName === "https://dev.api.preppo.in"?"Stop using the website and tell Hardik":"")}}</div>
+            <div class="col-xs-2 col-xs-offset-3" align="right" ng-show="loggedIn">
                 {{"Hi " + name}}
                 <button class="btn btn-link" ng-click="logout()">Logout</button>
             </div>

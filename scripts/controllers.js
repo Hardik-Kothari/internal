@@ -62,7 +62,7 @@ app.config(['$routeProvider', function($routeProvider) {
 }]);
 
 
-app.constant('domainName', ' https://prod.api.preppo.in');
+app.constant('domainName', 'https://prod.api.preppo.in');
 
 app.constant('contentTypes', ['News' , 'News Quiz', 'Content', 'Content Quiz']);
 
@@ -121,6 +121,7 @@ app.controller('MainController', ['$scope', '$cookies', '$location', '$http', 'd
     $scope.name = $cookies.get("name");
     $scope.role = $cookies.get("role");
     $scope.loading = false;
+    $scope.domainName = domainName;
     
     if($scope.name == undefined || $scope.name == "") {
         $scope.loggedIn = false;
@@ -331,6 +332,9 @@ app.controller('AdminController', ['$scope', '$http', '$location', 'domainName',
     }
 }]);
 
+app.factory('ScrollPositionServices', function() {
+    return { editorNews:0, editorQuiz: 0, editorQuizQuestions: 0};
+});
 
 app.controller('EditorController', ['$scope', 'contentTypes', '$location', 'editorData', function($scope, contentTypes, $location, editorData) {
     $scope.contentTypes = contentTypes;
@@ -476,7 +480,6 @@ app.controller('EditorUploaderController', ['$scope', '$http', '$location', 'dom
             alert("Unable to fetch data. Check internet connection.");
         });
     }
-    
 }]);
 
 app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'EditorNewsFactory', '$location', 'editorData', function($scope, $http, domainName, EditorNewsFactory, $location, editorData) {
@@ -501,11 +504,11 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
     };
     
     $scope.toBeDeleted = {
-        index: -1,
+        item: {},
         type: ''
     };
     
-    $scope.newsPublishIndex = -1;
+    $scope.newsPublishItem = {};
     
     $scope.visibleTab = editorData.lastTabOpened;
     $scope.viewingLang = "english";
@@ -619,10 +622,10 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
         });
     };
     
-    $scope.openEditWindow = function(type, index) {
+    $scope.openEditWindow = function(type, item) {
         EditorNewsFactory.newsArr = $scope.news[type];
         EditorNewsFactory.type = type;
-        EditorNewsFactory.index = index;
+        EditorNewsFactory.index = $scope.news[type].indexOf(item);
         editorData.lastTabOpened = $scope.visibleTab;
         $location.path('/editor/news/edit');
     }
@@ -638,10 +641,10 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
             },
         };
 
-        var url = domainName + "/v1/admin/news/" + $scope.news['approved'][$scope.newsPublishIndex]._id;
+        var url = domainName + "/v1/admin/news/" + $scope.newsPublishItem._id;
 
         $http.put(url, data, config).then(function successCallback(response){
-            $scope.news['approved'].splice($scope.newsPublishIndex, 1);
+            $scope.news['approved'].splice($scope.news['approved'].indexOf($scope.newsPublishItem), 1);
             $('#publishNewsModal').modal('hide');
             $scope.$parent.loading = false;
         }, function errorCallback(response){
@@ -652,17 +655,17 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
         });
     };
     
-    $scope.confirmPublishNews = function(index) {
-        $scope.newsPublishIndex = index;
+    $scope.confirmPublishNews = function(item) {
+        $scope.newsPublishItem = item;
         $('#publishNewsModal').modal('show');
     };
     
     $scope.deleteNews = function() {
         $scope.$parent.loading = true;
-        var newsId = $scope.news[$scope.toBeDeleted.type][$scope.toBeDeleted.index]._id;
-        var url = domainName + "/v1/admin/news/" + newsId;
+        var news = $scope.toBeDeleted.item;
+        var url = domainName + "/v1/admin/news/" + news._id;
         $http.delete(url).then(function successCallback(response){
-            $scope.news[$scope.toBeDeleted.type].splice($scope.toBeDeleted.index, 1);
+            $scope.news[$scope.toBeDeleted.type].splice($scope.news[$scope.toBeDeleted.type].indexOf(news), 1);
             $('#deleteNewsModal').modal('hide');
             $scope.$parent.loading = false;
         }, function errorCallback(response){
@@ -672,8 +675,8 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
         });
     };
     
-    $scope.showDeleteNewsModal = function(index, type) {
-        $scope.toBeDeleted.index = index;
+    $scope.showDeleteNewsModal = function(item, type) {
+        $scope.toBeDeleted.item = item;
         $scope.toBeDeleted.type = type;
         
         $('#deleteNewsModal').modal('show');      
@@ -793,7 +796,8 @@ app.controller('EditorNewsEditController', ['$scope', '$http', 'domainName', 'Ed
     
     $scope.fileUpload = function(imageType) {
         $http.defaults.withCredentials = false;
-        var uploadUrl = "https://storage.googleapis.com/public-prod-preppo/news/" + Math.random().toString(36).substr(2, 9) + '_' + $scope.imageInfo[imageType].chosenFile.name;
+        var text = $scope.imageInfo[imageType].chosenFile.name;
+        var uploadUrl = "https://storage.googleapis.com/public-prod-preppo/news/" + Math.random().toString(36).substr(2, 9) + '_' + text.replace(/[\W]/g, "");
         var fd = new FormData();
         fd.append('file', $scope.imageInfo[imageType].chosenFile);
         
@@ -959,16 +963,12 @@ app.controller('EditorNewsEditController', ['$scope', '$http', 'domainName', 'Ed
     
 }]);
 
-app.factory('ScrollPositionServices', function() {
-    return { editorQuiz: 0, editorQuizQuestions: 0};
-});
-
 app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'domainName', '$location', 'editorData', 'ScrollPositionServices', function($scope, $routeParams, $http, domainName, $location, editorData, ScrollPositionServices) {
     $scope.type = $routeParams.type;
     $http.defaults.withCredentials = true;
     $scope.fetchLimit = 20;
     $scope.toBeDeleted = {
-        index: -1,
+        item: {},
         type: ''
     };
     $scope.quizzes = {
@@ -989,7 +989,7 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
         published: false
     }
     
-    $scope.quizPublishIndex = -1;
+    $scope.quizPublishItem = {};
     
     $scope.visibleTab = editorData.lastTabOpened;
     $scope.viewingLang = "english";
@@ -1104,10 +1104,10 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
         });
     };
     
-    $scope.showQuestions = function(type, index) {
+    $scope.showQuestions = function(type, id) {
         editorData.lastTabOpened = $scope.visibleTab;
         ScrollPositionServices.editorQuizQuestions = 0;
-        $location.path('/editor/quiz/news/'+$scope.quizzes[type][index]._id);
+        $location.path('/editor/quiz/news/'+id);
     };
     
     $scope.publishQuiz = function() {
@@ -1121,10 +1121,10 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
             },
         };
 
-        var url = domainName + "/v1/admin/news/quiz/" + $scope.quizzes['approved'][$scope.quizPublishIndex]._id;
+        var url = domainName + "/v1/admin/news/quiz/" + $scope.quizPublishItem._id;
 
         $http.put(url, data, config).then(function successCallback(response){
-            $scope.quizzes['approved'].splice($scope.quizPublishIndex, 1);
+            $scope.quizzes['approved'].splice($scope.quizzes['approved'].indexOf($scope.quizPublishItem), 1);
             $('#publishQuizModal').modal('hide');
             $scope.$parent.loading = false;
         }, function errorCallback(response){
@@ -1135,7 +1135,7 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
         });
     };
     
-    $scope.approveQuiz = function(index) {
+    $scope.approveQuiz = function(item) {
         $scope.$parent.loading = true;
         var data = {
             status: 'approved'
@@ -1143,13 +1143,13 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
         var config = {
             headers: {
                 'Content-Type' : 'application/json'
-            },
+            }
         };
 
-        var url = domainName + "/v1/admin/news/quiz/" + $scope.quizzes['uploaded'][index]._id;
+        var url = domainName + "/v1/admin/news/quiz/" + item._id;
 
         $http.put(url, data, config).then(function successCallback(response){
-            $scope.quizzes['uploaded'].splice(index, 1);
+            $scope.quizzes['uploaded'].splice($scope.quizzes['uploaded'].indexOf(item), 1);
             $('#publishQuizModal').modal('hide');
             $scope.$parent.loading = false;
         }, function errorCallback(response){
@@ -1160,13 +1160,13 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
         }); 
     };
     
-    $scope.confirmPublishQuiz = function(index) {
-        $scope.quizPublishIndex = index;
+    $scope.confirmPublishQuiz = function(item) {
+        $scope.quizPublishItem = item;
         $('#publishQuizModal').modal('show');
     };
     
-    $scope.showDeleteQuizModal = function(index, type) {
-        $scope.toBeDeleted.index = index;
+    $scope.showDeleteQuizModal = function(item, type) {
+        $scope.toBeDeleted.item = item;
         $scope.toBeDeleted.type = type;
         
         $('#deleteQuizModal').modal('show');
@@ -1174,10 +1174,10 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
     
     $scope.deleteQuiz = function() { 
         $scope.$parent.loading = true;
-        var quizId = $scope.quizzes[$scope.toBeDeleted.type][$scope.toBeDeleted.index]._id;
-        var url = domainName + "/v1/admin/news/quiz/" + quizId;
+        var quiz = $scope.toBeDeleted.item;
+        var url = domainName + "/v1/admin/news/quiz/" + quiz._id;
         $http.delete(url).then(function successCallback(response){
-            $scope.quizzes[$scope.toBeDeleted.type].splice($scope.toBeDeleted.index, 1);
+            $scope.quizzes[$scope.toBeDeleted.type].splice($scope.quizzes[$scope.toBeDeleted.type].indexOf(quiz), 1);
             $('#deleteQuizModal').modal('hide');
             $scope.$parent.loading = false;
         }, function errorCallback(response){
@@ -2076,7 +2076,8 @@ app.controller('UploaderNewsUpdateController', ['$scope', '$http', 'domainName',
     
     $scope.fileUpload = function(imageType) {
         $http.defaults.withCredentials = false;
-        var uploadUrl = "https://storage.googleapis.com/public-prod-preppo/news/" + Math.random().toString(36).substr(2, 9) + '_' + $scope.imageInfo[imageType].chosenFile.name;
+        var text = $scope.imageInfo[imageType].chosenFile.name;
+        var uploadUrl = "https://storage.googleapis.com/public-prod-preppo/news/" + Math.random().toString(36).substr(2, 9) + '_' + text.replace(/[\W]/g, "");
         var fd = new FormData();
         fd.append('file', $scope.imageInfo[imageType].chosenFile);
         

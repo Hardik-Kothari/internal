@@ -30,15 +30,15 @@
                     <th>Approve ?</th>
                     <th>Delete ?</th>
                 </tr>
-                <tr ng-repeat="item in quizzes.uploaded track by $index">
+                <tr ng-repeat="item in quizzes.uploaded | orderBy:'-publishDate' track by $index">
                     <td>{{item.nickname}}</td>
                     <td>{{item.publishDate | date:'fullDate'}}</td>
                     <td>{{item.type}}</td>
                     <td>{{item.questionIdList.length}}</td>
                     <td>{{item.uploadedBy}}, {{item.createdAt | date:'mediumDate'}}</td>
-                    <td><button class="btn btn-link" ng-click="showQuestions('uploaded', $index)" ng-disabled="item.questionIdList.length == 0"><span class="glyphicon glyphicon-edit"></span></button></td>
-                    <td><button class="btn btn-primary" ng-click="approveQuiz($index)"><span class="glyphicon glyphicon-ok"></span></button></td>
-                    <td><button class="btn btn-link" ng-click="showDeleteQuizModal($index, 'uploaded')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showQuestions('uploaded', item._id)" ng-disabled="item.questionIdList.length == 0"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-primary" ng-click="approveQuiz(item)"><span class="glyphicon glyphicon-ok"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteQuizModal(item, 'uploaded')"><span class="glyphicon glyphicon-remove"></span></button></td>
                 </tr>
             </table>
             <div style="height:24px; width:100%;">
@@ -62,16 +62,16 @@
                     <th>Publish ?</th>
                     <th>Delete ?</th>
                 </tr>
-                <tr ng-repeat="item in quizzes.approved track by $index">
+                <tr ng-repeat="item in quizzes.approved | orderBy:'-publishDate' track by $index">
                     <td>{{item.nickname}}</td>
                     <td>{{item.publishDate | date:'fullDate'}}</td>
                     <td>{{item.type}}</td>
                     <td>{{item.questionIdList.length}}</td>
                     <td>{{item.uploadedBy}}, {{item.createdAt | date:'mediumDate'}}</td>
                     <td>{{item.editedBy}}, {{item.updatedAt | date:'mediumDate'}}</td>
-                    <td><button class="btn btn-link" ng-click="showQuestions('approved', $index)" ng-disabled="item.questionIdList.length == 0"><span class="glyphicon glyphicon-edit"></span></button></td>
-                    <td><button class="btn btn-primary" ng-click="confirmPublishQuiz($index)"><span class="glyphicon glyphicon-film"></span></button></td>
-                    <td><button class="btn btn-link" ng-click="showDeleteQuizModal($index, 'approved')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showQuestions('approved', item._id)" ng-disabled="item.questionIdList.length == 0"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-primary" ng-click="confirmPublishQuiz(item)"><span class="glyphicon glyphicon-film"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteQuizModal(item, 'approved')"><span class="glyphicon glyphicon-remove"></span></button></td>
                 </tr>
             </table>
             <div style="height:24px; width:100%;">
@@ -94,15 +94,15 @@
                     <th>Edit ?</th>
                     <th>Delete ?</th>
                 </tr>
-                <tr ng-repeat="item in quizzes.published track by $index">
+                <tr ng-repeat="item in quizzes.published | orderBy:'-publishDate' track by $index">
                     <td>{{item.nickname}}</td>
                     <td>{{item.publishDate | date:'fullDate'}}</td>
                     <td>{{item.type}}</td>
                     <td>{{item.questionIdList.length}}</td>
                     <td>{{item.uploadedBy}}, {{item.createdAt | date:'mediumDate'}}</td>
                     <td>{{item.editedBy}}, {{item.updatedAt | date:'mediumDate'}}</td>
-                    <td><button class="btn btn-link" ng-click="showQuestions('published', $index)" ng-disabled="item.questionIdList.length == 0"><span class="glyphicon glyphicon-edit"></span></button></td>
-                    <td><button class="btn btn-link" ng-click="showDeleteQuizModal($index, 'published')"><span class="glyphicon glyphicon-remove"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showQuestions('published', item._id)" ng-disabled="item.questionIdList.length == 0"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteQuizModal(item, 'published')"><span class="glyphicon glyphicon-remove"></span></button></td>
                 </tr>
             </table>
             <div style="height:24px; width:100%;">
@@ -141,7 +141,7 @@
                 <h4 class="modal-title danger">Sure!!!</h4>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete the quiz {{quizzes[toBeDeleted.type][toBeDeleted.index].nickname}} ?
+                Are you sure you want to delete the quiz {{toBeDeleted.item.nickname}} ?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
