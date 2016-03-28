@@ -959,7 +959,11 @@ app.controller('EditorNewsEditController', ['$scope', '$http', 'domainName', 'Ed
     
 }]);
 
-app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'domainName', '$location', 'editorData', function($scope, $routeParams, $http, domainName, $location, editorData) {
+app.factory('ScrollPositionServices', function() {
+    return { editorQuiz: 0, editorQuizQuestions: 0};
+});
+
+app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'domainName', '$location', 'editorData', 'ScrollPositionServices', function($scope, $routeParams, $http, domainName, $location, editorData, ScrollPositionServices) {
     $scope.type = $routeParams.type;
     $http.defaults.withCredentials = true;
     $scope.fetchLimit = 20;
@@ -1102,6 +1106,7 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
     
     $scope.showQuestions = function(type, index) {
         editorData.lastTabOpened = $scope.visibleTab;
+        ScrollPositionServices.editorQuizQuestions = 0;
         $location.path('/editor/quiz/news/'+$scope.quizzes[type][index]._id);
     };
     
@@ -1184,7 +1189,7 @@ app.controller('EditorQuizController', ['$scope', '$routeParams', '$http', 'doma
     
 }]);
 
-app.controller('EditorQuizQuestionsController', ['$scope', '$routeParams', '$http', 'domainName', 'EditorQuestionService', '$window', '$location', function($scope, $routeParams, $http, domainName, EditorQuestionService, $window, $location) {
+app.controller('EditorQuizQuestionsController', ['$scope', '$routeParams', '$http', 'domainName', 'EditorQuestionService', '$window', '$location', 'ScrollPositionServices', function($scope, $routeParams, $http, domainName, EditorQuestionService, $window, $location, ScrollPositionServices) {
     $http.defaults.withCredentials = true;
     $scope.quiz = {};
     $scope.questions = [];
@@ -1210,6 +1215,7 @@ app.controller('EditorQuizQuestionsController', ['$scope', '$routeParams', '$htt
             $scope.quizType = $scope.quiz.type;
             $scope.questions = response.data.questionList;
             $scope.$parent.loading = false;
+            $('html,body').animate({scrollTop: ScrollPositionServices.editorQuizQuestions}, 'slow');
         }, function errorCallback(response){
             $scope.$parent.loading = false;
             alert("Unable to fetch data. Check internet.");
@@ -1283,12 +1289,14 @@ app.controller('EditorQuizQuestionsController', ['$scope', '$routeParams', '$htt
             EditorQuestionService.quiz = $scope.quiz;
             EditorQuestionService.type = "new";
             EditorQuestionService.question = {};
+            ScrollPositionServices.editorQuizQuestions = $(window).scrollTop();
             $location.path('/editor/quiz/news/question/new');
         }
         else {
             EditorQuestionService.quiz = $scope.quiz;
             EditorQuestionService.type = "edit";
             EditorQuestionService.question = $scope.questions[index];
+            ScrollPositionServices.editorQuizQuestions = $(window).scrollTop();
             $location.path('/editor/quiz/news/question/'+$scope.questions[index]._id);
         }
     };
