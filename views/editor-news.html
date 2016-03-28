@@ -11,11 +11,14 @@
                 <label class="btn btn-primary" ng-class="{'active' : visibleTab == 'published' }">
                     <input type="radio" name="options-requests" value="published" autocomplete="off" ng-model="visibleTab" ng-click="tabChanged()"> Published
                 </label>
+                <label class="btn btn-primary" ng-class="{'active' : visibleTab == 'datewise' }">
+                    <input type="radio" name="options-requests" value="datewise" autocomplete="off" ng-model="visibleTab" ng-click="tabChanged()"> Datewise
+                </label>
             </div>
         </div>
     </div>
     <div class="row" style="margin: 0px;">
-        <div class="col-xs-10 col-xs-offset-1" ng-show=" visibleTab == 'uploaded' ">
+        <div class="col-xs-12" ng-show=" visibleTab == 'uploaded' ">
             <div class="col-xs-1 col-xs-offset-10" style="margin-bottom: 12px;">
                 <button class="btn btn-primary" ng-click="refresh('uploaded')" ng-disabled="disableRefresh.uploaded"><span class="glyphicon glyphicon-refresh"></span></button>
             </div>
@@ -96,6 +99,31 @@
                 <p style="text-align: center; color: green;" ng-show="newsStatus.published == 2 && news.published.length>0">Loading ...</p>
             </div>
         </div>
+        <div class="col-xs-12" ng-show=" visibleTab == 'datewise' ">
+            <div class="col-xs-4 col-xs-offset-2" style="margin-bottom: 18px; margin-top: 12px;">
+                <input type="date" class="form-control" placeholder="yyyy-MM-dd" value="2016-03-01" min="2010-12-01" max="2020-12-31" ng-model="fetchDate">
+                <small>* dd/MM/yyyy or yyyy-MM-dd </small>
+            </div>
+            <div class="col-xs-2 col-xs-offset-2" style="margin-bottom: 18px; margin-top: 12px;">
+                <button class="btn btn-warning" ng-click="fetchDatewiseData()">Fetch News</button>
+            </div>
+            <table class="table col-xs-12">
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Edit?</th>
+                    <th>Publish?</th>
+                    <th>Delete?</th>
+                </tr>
+                <tr ng-repeat="item in dateNews track by $index">
+                    <td>{{item.content[viewingLang].heading}}</td>
+                    <td>{{item.status}}</td>
+                    <td><button class="btn btn-link" ng-click="edit($index, item.status)"><span class="glyphicon glyphicon-edit"></span></button></td>
+                    <td><button class="btn btn-primary" ng-click="confirmPublishDateNews(item)" ng-disabled=" item.status != 'approved' "><span class="glyphicon glyphicon-film"></span></button></td>
+                    <td><button class="btn btn-link" ng-click="showDeleteDateNewsModal($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+                </tr>
+            </table>
+        </div>
     </div>
     <div style="height: 18px;"></div>
 </div>
@@ -109,7 +137,7 @@
                 <h4 class="modal-title danger">Sure!!!</h4>
             </div>
             <div class="modal-body">
-                Are you sure you want to publish this news ?
+                Are you sure you want to publish the news {{newsPublishItem.content[viewingLang].heading}} ?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
@@ -133,6 +161,45 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
                 <button type="button" class="btn btn-danger" ng-click="deleteNews()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Confirm Delete Modal ends-->
+
+<!-- Confirm Publish Modal starts-->
+<div class="modal fade" id="publishDateNewsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title danger">Sure!!!</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to publish the news {{newsPublishItem.content[viewingLang].heading}} ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger" ng-click="publishDateNews()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Confirm Publish Modal ends-->
+<!-- Confirm Delete Modal starts-->
+<div class="modal fade" id="deleteDateNewsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title danger">Sure!!!</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the news {{toBeDeleted.item.content[viewingLang].heading}} ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger" ng-click="deleteDateNews()">Yes</button>
             </div>
         </div>
     </div>

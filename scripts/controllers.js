@@ -61,7 +61,6 @@ app.config(['$routeProvider', function($routeProvider) {
     });
 }]);
 
-
 app.constant('domainName', 'https://prod.api.preppo.in');
 
 app.constant('contentTypes', ['News' , 'News Quiz', 'Content', 'Content Quiz']);
@@ -88,6 +87,26 @@ app.factory('categoryConstants', function() {
         completeTestType: completeTestType
     };
     return fac;
+});
+
+app.factory('dateToString', function() {
+    var func = function (dt) {
+        var zero = "0";
+        var year = dt.getFullYear().toString();
+        var month = (dt.getMonth()+1).toString();
+        if(month.length == 1) {
+            month = zero.concat(month);
+        }
+        var dt = dt.getDate().toString();
+        if(dt.length == 1) {
+            dt = zero.concat(dt);
+        }
+        var dateString =  year + "-" + month + "-" + dt;
+        return dateString;
+    };
+    return {
+        convert: func
+    }
 });
 
 app.factory('quizData', function() {
@@ -482,9 +501,16 @@ app.controller('EditorUploaderController', ['$scope', '$http', '$location', 'dom
     }
 }]);
 
-app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'EditorNewsFactory', '$location', 'editorData', function($scope, $http, domainName, EditorNewsFactory, $location, editorData) {
+app.factory('DatewiseNews', ['dateToString', function(dateToString) {
+    var aaj = new Date();
+    return { arr: [], dt: new Date(dateToString.convert(aaj))};
+}]);
+
+app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'EditorNewsFactory', '$location', 'editorData', 'DatewiseNews', function($scope, $http, domainName, EditorNewsFactory, $location, editorData, DatewiseNews) {
     $http.defaults.withCredentials = true;
     $scope.fetchLimit = 20;
+    $scope.dateNews = DatewiseNews.arr;
+    $scope.fetchDate = DatewiseNews.dt;
     $scope.news = {
         uploaded: [],
         approved: [],
@@ -505,7 +531,8 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
     
     $scope.toBeDeleted = {
         item: {},
-        type: ''
+        type: '',
+        index: -1
     };
     
     $scope.newsPublishItem = {};
@@ -514,7 +541,7 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
     $scope.viewingLang = "english";
     
     function load() {
-        if($scope.news[$scope.visibleTab].length == 0 && !$scope.disableRefresh[$scope.visibleTab]) {
+        if($scope.visibleTab != 'datewise' && $scope.news[$scope.visibleTab].length == 0 && !$scope.disableRefresh[$scope.visibleTab]) {
             $scope.$parent.loading = true;
             var type = $scope.visibleTab;
             $scope.disableRefresh[type] = true;
@@ -583,7 +610,10 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
     };
     
     $scope.tabChanged = function() {
-        if($scope.news[$scope.visibleTab].length>0) {
+        if($scope.visibleTab === "datewise") {
+            
+        }
+        else if($scope.news[$scope.visibleTab].length>0) {
             $scope.refresh($scope.visibleTab);
         }
         else {
@@ -682,10 +712,95 @@ app.controller('EditorNewsController', ['$scope', '$http', 'domainName', 'Editor
         $('#deleteNewsModal').modal('show');      
     };
     
+    $scope.fetchDatewiseData = function() {
+        $scope.$parent.loading = true;
+        var config = {
+            headers: {
+                'Content-Type' : 'application/json'
+            },
+            params: {
+                'date': $scope.fetchDate
+            }
+        };
+        var url = domainName + "/v1/admin/news";
+        $http.get(url, config).then(function successCallback(response) {
+            $scope.dateNews = response.data;
+            DatewiseNews.arr = response.data;
+            DatewiseNews.dt = $scope.fetchDate;
+            $scope.$parent.loading = false;
+        }, function errorCallback(response) {
+            $scope.$parent.loading = false;
+            alert("Unable to fetch data. Check internet.");
+            console.log(JSON.stringify(response));
+        });
+    };
+    
+    $scope.edit = function(index, type) {
+        EditorNewsFactory.newsArr = $scope.dateNews;
+        EditorNewsFactory.type = type;
+        EditorNewsFactory.index = index;
+        EditorNewsFactory.dateNews = true;
+        editorData.lastTabOpened = $scope.visibleTab;
+        $location.path('/editor/news/edit'); 
+    };
+    
+    $scope.publishDateNews = function() {
+        $scope.$parent.loading = true;
+        var data = {
+            status: 'published'
+        };
+        var config = {
+            headers: {
+                'Content-Type' : 'application/json'
+            },
+        };
+
+        var url = domainName + "/v1/admin/news/" + $scope.newsPublishItem._id;
+
+        $http.put(url, data, config).then(function successCallback(response){
+            $scope.newsPublishItem.status = 'published';
+            $('#publishDateNewsModal').modal('hide');
+            $scope.$parent.loading = false;
+        }, function errorCallback(response){
+            $('#publishDateNewsModal').modal('hide');
+            console.log(JSON.stringify(response));
+            $scope.$parent.loading = false;
+            alert("Unable to save changes. Check internet connection.");
+        });
+    };
+    
+    $scope.confirmPublishDateNews = function(item) {
+        $scope.newsPublishItem = item;
+        $('#publishDateNewsModal').modal('show');
+    };
+    
+    $scope.deleteDateNews = function() {
+        $scope.$parent.loading = true;
+        var news = $scope.toBeDeleted.item;
+        var url = domainName + "/v1/admin/news/" + news._id;
+        $http.delete(url).then(function successCallback(response){
+            $scope.dateNews.splice($scope.toBeDeleted.index, 1);
+            $('#deleteDateNewsModal').modal('hide');
+            $scope.$parent.loading = false;
+        }, function errorCallback(response){
+            $scope.$parent.loading = false;
+            $('#deleteDateNewsModal').modal('hide');
+            alert("Unable to delete user. Check internet connection.");
+        });
+    };
+    
+    $scope.showDeleteDateNewsModal = function(index) {
+        $scope.toBeDeleted.item = $scope.dateNews[index];
+        $scope.toBeDeleted.type = "";
+        $scope.toBeDeleted.index = index;
+        
+        $('#deleteDateNewsModal').modal('show');      
+    };
+    
 }]);
 
 app.factory('EditorNewsFactory', function() {
-    return {newsArr: [], type: "", index: -1};
+    return {newsArr: [], type: "", index: -1, dateNews: false};
 });
 
 app.controller('EditorNewsEditController', ['$scope', '$http', 'domainName', 'EditorNewsFactory', '$window', function($scope, $http, domainName, EditorNewsFactory, $window) {
@@ -797,7 +912,7 @@ app.controller('EditorNewsEditController', ['$scope', '$http', 'domainName', 'Ed
     $scope.fileUpload = function(imageType) {
         $http.defaults.withCredentials = false;
         var text = $scope.imageInfo[imageType].chosenFile.name;
-        var uploadUrl = "https://storage.googleapis.com/public-prod-preppo/news/" + Math.random().toString(36).substr(2, 9) + '_' + text.replace(/[\W]/g, "");
+        var uploadUrl = "https://storage.googleapis.com/public-prod-preppo/news/" + Math.random().toString(36).substr(2, 9) + '_' + text.replace(/[^\w.-]/g, "");
         var fd = new FormData();
         fd.append('file', $scope.imageInfo[imageType].chosenFile);
         
@@ -947,7 +1062,20 @@ app.controller('EditorNewsEditController', ['$scope', '$http', 'domainName', 'Ed
         $http.defaults.withCredentials = true;
         
         $http.put(url, data, config).then(function successCallback(response) {
-            EditorNewsFactory.newsArr.splice(EditorNewsFactory.index, 1);
+            if(EditorNewsFactory.dateNews) {
+                EditorNewsFactory.newsArr[EditorNewsFactory.index]['content'] = data.content;
+                EditorNewsFactory.newsArr[EditorNewsFactory.index]['publishDate'] = data.publishDate;
+                EditorNewsFactory.newsArr[EditorNewsFactory.index]['categories'] = data.categories;
+                EditorNewsFactory.newsArr[EditorNewsFactory.index]['tags'] = data.tags;
+                EditorNewsFactory.newsArr[EditorNewsFactory.index]['imageMobile'] = data.imageMobile;
+                EditorNewsFactory.newsArr[EditorNewsFactory.index]['imageWeb'] = data.imageWeb;
+                if(EditorNewsFactory.type == 'uploaded') {
+                    EditorNewsFactory.newsArr[EditorNewsFactory.index]['status'] = 'approved';
+                }
+            }
+            else {
+                EditorNewsFactory.newsArr.splice(EditorNewsFactory.index, 1);   
+            }
             simonGoBack();
             $scope.$parent.loading = false;
         }, function errorCallback(response){
@@ -1490,8 +1618,9 @@ app.controller('UploaderController', ['$scope', 'categoryConstants', '$location'
     };
 }]);
 
-app.controller('UploaderQuizController', ['$scope', '$routeParams', '$location', 'quizData', '$http', 'domainName', function($scope, $routeParams, $location, quizData, $http, domainName) {
+app.controller('UploaderQuizController', ['$scope', '$routeParams', '$location', 'quizData', '$http', 'domainName', 'dateToString', function($scope, $routeParams, $location, quizData, $http, domainName, dateToString) {
     $http.defaults.withCredentials = true;
+    $scope.aajKaDin = new Date();
     $scope.type = $routeParams.type;
     $scope.homeScreen = true;
     $scope.step = 1;
@@ -1502,7 +1631,7 @@ app.controller('UploaderQuizController', ['$scope', '$routeParams', '$location',
     $scope.quizzesStatus = 1;
     $scope.quizName = "";
     $scope.quizType = "";
-    $scope.quizPublishDate = new Date("2016-02-01");
+    $scope.quizPublishDate = new Date(dateToString.convert($scope.aajKaDin));
     $scope.quizId = "";
     $scope.quizCSVData = [];
     $scope.setStep = 1;
@@ -1996,7 +2125,8 @@ app.controller('UploaderQuizOfficeController', ['$scope', '$routeParams', 'quizD
     
 }]);
 
-app.controller('UploaderNewsUpdateController', ['$scope', '$http', 'domainName', '$window', function($scope, $http, domainName, $window) {
+app.controller('UploaderNewsUpdateController', ['$scope', '$http', 'domainName', '$window', 'dateToString', function($scope, $http, domainName, $window, dateToString) {
+    $scope.aajKaDin = new Date();
     $scope.newsUpdateData = {
         content: {
             english: {
@@ -2008,7 +2138,7 @@ app.controller('UploaderNewsUpdateController', ['$scope', '$http', 'domainName',
                 points: []
             }
         },
-        publishDate: new Date("2016-02-01")
+        publishDate: new Date(dateToString.convert($scope.aajKaDin))
     };
     
     $scope.categories = ["Award and honours", "Important International events", "Important Political events", "Books and authors", "Committees and commissions", "Submits and conferences", "Economic updates", "Budget and economic Survey", "Sports and Games", "Science and Technology", "Environmental conventions and updates", "miscellaneous"];
@@ -2077,7 +2207,7 @@ app.controller('UploaderNewsUpdateController', ['$scope', '$http', 'domainName',
     $scope.fileUpload = function(imageType) {
         $http.defaults.withCredentials = false;
         var text = $scope.imageInfo[imageType].chosenFile.name;
-        var uploadUrl = "https://storage.googleapis.com/public-prod-preppo/news/" + Math.random().toString(36).substr(2, 9) + '_' + text.replace(/[\W]/g, "");
+        var uploadUrl = "https://storage.googleapis.com/public-prod-preppo/news/" + Math.random().toString(36).substr(2, 9) + '_' + text.replace(/[^\w.-]/g, "");
         var fd = new FormData();
         fd.append('file', $scope.imageInfo[imageType].chosenFile);
         
