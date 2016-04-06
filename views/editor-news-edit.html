@@ -173,4 +173,20 @@
 <script>
     CKEDITOR.replace( 'editor3' );
     CKEDITOR.replace( 'editor4' );
+    
+    var editor3 = CKEDITOR.instances.editor3;
+    var editor4 = CKEDITOR.instances.editor4;
+    
+    editor3.on('afterPaste', function (event) {
+        var dtaa = editor3.getData();
+        dtaa = dtaa.replace(/<strong>/g, "");
+        dtaa = dtaa.replace(/<\/strong>/g, "");
+        editor3.setData(dtaa);
+    });
+    editor4.on('afterPaste', function (event) {
+        var dtaa = editor4.getData();
+        dtaa = dtaa.replace(/<strong>/g, "");
+        dtaa = dtaa.replace(/<\/strong>/g, "");
+        editor4.setData(dtaa);
+    });
 </script>

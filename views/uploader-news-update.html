@@ -155,4 +155,20 @@
 <script>
     CKEDITOR.replace( 'editor1' );
     CKEDITOR.replace( 'editor2' );
+    
+    var editor1 = CKEDITOR.instances.editor1;
+    var editor2 = CKEDITOR.instances.editor2;
+    
+    editor1.on('afterPaste', function (event) {
+        var dtaa = editor1.getData();
+        dtaa = dtaa.replace(/<strong>/g, "");
+        dtaa = dtaa.replace(/<\/strong>/g, "");
+        editor1.setData(dtaa);
+    });
+    editor2.on('afterPaste', function (event) {
+        var dtaa = editor2.getData();
+        dtaa = dtaa.replace(/<strong>/g, "");
+        dtaa = dtaa.replace(/<\/strong>/g, "");
+        editor2.setData(dtaa);
+    });
 </script>

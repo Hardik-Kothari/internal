@@ -953,16 +953,14 @@ app.controller('EditorNewsEditController', ['$scope', '$http', 'domainName', 'Ed
         var data;
         if(lang == 'english') {
             data = CKEDITOR.instances.editor3.getData();
-            console.log("data : " + data);
         }
         else {
             data = CKEDITOR.instances.editor4.getData();
-            console.log("data : " + data);
         }
-        data.replace("<strong>", "<b>");
-        data.replace("</strong>", "</b>");
-        data.replace("<em>", "<i>");
-        data.replace("</em>", "</i>");
+        data = data.replace(/<strong>/g, "<b>");
+        data = data.replace(/<\/strong>/g, "</b>");
+        data = data.replace(/<em>/g, "<i>");
+        data = data.replace(/<\/em>/g, "</i>");
         
         if($scope.isCreating[lang]) {
             $scope.newsUpdateData.content[lang].points.push(data);
@@ -2252,10 +2250,10 @@ app.controller('UploaderNewsUpdateController', ['$scope', '$http', 'domainName',
         else {
             data = CKEDITOR.instances.editor2.getData();
         }
-        data = data.replace("<strong>", "<b>");
-        data = data.replace("</strong>", "</b>");
-        data = data.replace("<em>", "<i>");
-        data = data.replace("</em>", "</i>");
+        data = data.replace(/<strong>/g, "<b>");
+        data = data.replace(/<\/strong>/g, "</b>");
+        data = data.replace(/<em>/g, "<i>");
+        data = data.replace(/<\/em>/g, "</i>");
         if($scope.isCreating[lang]) {
             $scope.newsUpdateData.content[lang].points.push(data);
             $scope.isCreating[lang] = false;
